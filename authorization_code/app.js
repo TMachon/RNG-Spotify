@@ -13,9 +13,10 @@ var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
-var client_id = 'CLIENT_ID'; // Your client id
-var client_secret = 'CLIENT_SECRET'; // Your secret
-var redirect_uri = 'REDIRECT_URI'; // Your redirect uri
+var secrets = require('../secret.json');
+var client_id = secrets.client_id; // Your client id
+var client_secret = secrets.client_secret; // Your secret
+var redirect_uri = secrets.redirect_uri; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
