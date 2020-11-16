@@ -13,6 +13,9 @@
         white-space: nowrap;
         width: 500px;
       }
+      .custom.button {
+        align-items: right;
+      }
     </style>
   </head>
 
@@ -55,9 +58,14 @@
 
     <script id="user-playlists-template" type="text/x-handlebars-template">
       <h2>Playlists</h2>
-      <dl class="dl-horizontal">
-        <dt>-></dt><dd class="text-overflow"></dd>
-      </dl>
+      <ul class="list-group">
+        {{#each items}}
+        <li class="list-group-item">
+          <p>{{name}}</p>
+          <button type="button" class="btn btn-primary btn-sm custom">Randomize!</button>
+        </li>
+      {{/each}}
+      </ul>
     </script>
 
     <script id="oauth-template" type="text/x-handlebars-template">
@@ -137,8 +145,8 @@
                 'Authorization': 'Bearer ' + access_token
               },
               success: function(response) {
+                console.log(response); //TODO remove
                 userPlaylistsPlaceholder.innerHTML = userPlaylistsTemplate(response);
-                console.log(response)
 
                 $('#login').hide();
                 $('#loggedin').show();
