@@ -14,11 +14,29 @@ var cookieParser = require('cookie-parser');
 
 var PORT = process.env.PORT || 8888;
 
-var secrets = require('../secret.json');
+var client_id; // Your client id
+  var client_secret; // Your secret
+  var redirect_uri; // Your redirect uri
+
+if (process.env._ && process.env._.indexOf("heroku")) {
+  console.log("I'm in Heroku!");
+  const aws = require('aws-sdk');
+  let s3 = new aws.S3({
+    client_id: process.env.S3_ID,
+    client_secret: process.env.S3_SECRET,
+    redirect_uri: process.env.S3_URI
+  })
+} else {
+  var secrets = require('../secret.json');
+  client_id = secrets.client_id;
+  client_secret = secrets.client_secret;
+  redirect_uri = secrets.redirect_uri;
+}
+
+
+console.log("client_id: "+client_id);
+
 const { env } = require('process');
-var client_id = secrets.client_id; // Your client id
-var client_secret = secrets.client_secret; // Your secret
-var redirect_uri = secrets.redirect_uri; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
