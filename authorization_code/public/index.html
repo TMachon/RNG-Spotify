@@ -28,8 +28,11 @@
       <div id="loggedin">
         <div id="user-profile">
         </div>
+        <div id="user-testing">
+        </div>
         <div id="user-playlists">
         </div>
+        <button class="btn btn-primary btn-sm custom" id="randomize-btn" disabled>Randomize!</button>
         <div id="oauth">
         </div>
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
@@ -56,14 +59,21 @@
       </div>
     </script>
 
+    <script id="user-testing-template" type="text/x-handlebars-template">
+      <h2>testing section</h2>
+    </script>
+
     <script id="user-playlists-template" type="text/x-handlebars-template">
       <h2>Playlists</h2>
       <ul class="list-group">
         {{#each items}}
+        
         <li class="list-group-item">
-          <p>{{name}}</p>
-          <button type="button" class="btn btn-primary btn-sm custom">Randomize!</button>
+          <input type="radio" name="selected-playlist-id" value="{{id}}">
+          <input type="hidden" name="selected-playlist-name" value="{{name}}">
+          <label for="{{id}}">{{name}}</label>
         </li>
+        
       {{/each}}
       </ul>
     </script>
@@ -95,6 +105,29 @@
           return hashParams;
         }
 
+        /**
+         * Randomise parameters' array
+         * @return Array
+         */
+        function shuffle(array) {
+          var currentIndex = array.length, temporaryValue, randomIndex;
+
+          // While there remain elements to shuffle...
+          while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+          }
+
+          return array;
+        }     
+
         var user_id;
         
         var userProfileSource = document.getElementById('user-profile-template').innerHTML,
@@ -104,6 +137,10 @@
         var userPlaylistsSource = document.getElementById('user-playlists-template').innerHTML,
             userPlaylistsTemplate = Handlebars.compile(userPlaylistsSource),
             userPlaylistsPlaceholder = document.getElementById('user-playlists');
+
+        var userTestingSource = document.getElementById('user-testing-template').innerHTML,
+            userTestingTemplate = Handlebars.compile(userTestingSource),
+            userTestingPlaceholder = document.getElementById('user-testing');
             
         var oauthSource = document.getElementById('oauth-template').innerHTML,
             oauthTemplate = Handlebars.compile(oauthSource),
@@ -147,9 +184,7 @@
               success: function(response) {
                 console.log(response); //TODO remove
                 userPlaylistsPlaceholder.innerHTML = userPlaylistsTemplate(response);
-
-                $('#login').hide();
-                $('#loggedin').show();
+                document.getElementById('randomize-btn').disabled = false;
               }
             });
 
@@ -158,6 +193,8 @@
               $('#login').show();
               $('#loggedin').hide();
           }
+
+          
 
           document.getElementById('obtain-new-token').addEventListener('click', function() {
             $.ajax({
@@ -173,6 +210,46 @@
               });
             });
           }, false);
+
+          document.getElementById('randomize-btn').addEventListener('click', function() {
+
+            var spi = document.getElementsByName('selected-playlist-id');
+            var spn = document.getElementsByName('selected-playlist-name')
+            var selectedPlaylistId, selectedPlaylistName;
+
+            for (i=0; i<spi.length; i++) {
+              if (spi[i].checked) {
+                selectedPlaylistId = spi[i].value
+                selectedPlaylistName = spn[i].value
+              }
+            }
+
+            if (selectedPlaylistId != null && confirm("Do you want to randomize '"+selectedPlaylistName+"' ?")) {
+
+              oneArtist = confirm("Do you want only one song for each artist ?");
+
+              var tmp
+
+              var requestUrl = 'https://api.spotify.com/v1/playlists/' + selectedPlaylistId
+              $.ajax({
+              url: requestUrl,
+              headers: {
+                'Authorization': 'Bearer ' + access_token
+              },
+              success: function(response) {
+                var tracks = response.tracks.items
+                var tracksRng = shuffle(tracks)
+                //console.log(tracks)
+                tmp = response
+              }
+            });
+
+            console.log("--")
+            console.log(tmp)
+            
+            }
+          });
+
         }
       })();
     </script>
